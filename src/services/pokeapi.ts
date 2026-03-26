@@ -33,6 +33,22 @@ export type PokemonListItemUI = {
   id: number;
   name: string;
   imageUrl: string;
+  types: string[];
+};
+
+export type PokemonDetailListItemResponse = {
+  id: number;
+  name: string;
+  sprites: {
+    front_default: string | null;
+  };
+  types: {
+    slot: number;
+    type: {
+      name: string;
+      url: string;
+    };
+  }[];
 };
 
 function extractIdPokemon(url: string): number {
@@ -51,21 +67,27 @@ export async function fetchPokemonListPage(
 }> {
   const data = await fetchPokemonList(limit, offset, options);
 
-  const items = data.results.map((pokemon) => {
-    const id = extractIdPokemon(pokemon.url);
+  const detail = await Promise.all(
+    data.results.map(async (pokemon) => {
+      const response = await fetch(pokemon.url, { signal: options?.signal });
+      if (!response.ok) {
+        throw new Error(`Falha ao buscar detalhes de ${pokemon.name}`);
+      }
+      return (await response.json()) as PokemonDetailListItemResponse;
+    }),
+  );
 
+  const items: PokemonListItemUI[] = detail.map((pokemon) => ({
+    id: pokemon.id,
+    name: pokemon.name,
+    imageUrl: pokemon.sprites.front_default ?? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.id}.png`,
+    types: pokemon.types.map((t) => t.type.name),
+  }));
     return {
-      id,
-      name: pokemon.name,
-      imageUrl: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`,
+      items,
+      count: data.count,
+      next: data.next
     }
-  });
-
-  return {
-    items,
-    count: data.count,
-    next: data.next
-  }
 }
 
 export type PokemonDetailResponse = {

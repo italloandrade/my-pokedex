@@ -7,6 +7,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../routes';
 import LoginScreen from '../Login';
 import { fetchPokemonListPage, type PokemonListItemUI } from '../../services/pokeapi';
+import { POKEMON_TYPE_COLORS } from '../../global/pokemonColor';
 
 const PAGE_SIZE = 10;
 
@@ -83,13 +84,14 @@ async function loadMore() {
       onPress={() => navigation.navigate('PokemonDetail', {id: item.id})}>
       <View style={styles.cardLeft}>
         <Text style={styles.cardName}>{item.name}</Text>
-        {/* <View style={styles.typeContainer}>
+        <View style={styles.typeContainer}>
           {item.types.map((type) => (
-            <View key={type} style={styles.typeBadge}>
+            <View key={`${item.id}-${type}`}
+             style={[styles.typeBadge, { backgroundColor: POKEMON_TYPE_COLORS[type]}]}>
               <Text style={styles.typeText}>{type}</Text>
             </View>
           ))}
-        </View>  */}
+        </View> 
       </View>
       <Image source={{ uri: item.imageUrl }} style={styles.cardImage} />
     </TouchableOpacity>

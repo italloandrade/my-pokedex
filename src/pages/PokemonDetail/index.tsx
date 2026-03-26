@@ -9,8 +9,7 @@ import { fetchPokemonDetail,
          fetchPokemonSpecies,
          type PokemonDetailResponse,
          type PokemonSpeciesResponse } from '../../services/pokeapi';
-
-
+import { POKEMON_TYPE_COLORS } from '../../global/pokemonColor';
 // const MOCK_POKEMON_DETAIL = {
 //   id: 25,
 //   name: 'pikachu',
@@ -130,7 +129,8 @@ if (error || !pokemon) {
 
         <View style={styles.typeContainer}>
           {pokemon.types.map(({type}) => (
-            <View key={type.name} style={styles.typeBadge}>
+            <View key={type.name} style= 
+            {[styles.typeBadge, { backgroundColor: POKEMON_TYPE_COLORS[type.name] ?? theme.colors.primary }]}>
               <Text style={styles.typeText}>{type.name}</Text>
             </View>
           ))}
